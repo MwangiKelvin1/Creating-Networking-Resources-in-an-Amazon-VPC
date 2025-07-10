@@ -136,24 +136,120 @@ Note: Every route table needs to be associated to a subnet. You are now associat
 ![alt text](<Screenshots/13 EDITTED SUBNET ASSOCIATION.png>)
 
 
+## Creating a Network ACL
+
+What are Network Access Control list?
+
+So, NACLs are like a set of traffic rules that work at the subnet level — kind of like a security guard for a whole neighborhood, not just one house. They're similar to security groups, but with some key differences.
+Here’s the thing:
+- Every NACL must be linked to a subnet — otherwise, it won’t do anything.
+- NACLs are stateless, which means if you allow traffic in, you also have to allow it out manually (it doesn’t remember anything).
+- Rules are checked in order, starting from the lowest number. For example, rule #10 is checked before #100. First match wins.
+- You define what type of traffic it is (like HTTP or SSH).
+- Then the protocol — usually TCP, UDP, or just "all".
+- Set a port range — like port 22 for SSH, or 80 for HTTP.
+- For outbound rules, you also pick a destination (like 0.0.0.0/0 for internet).
+- Finally, you choose if that traffic should be allowed or denied.
+Honestly, they’re a bit more strict than security groups, and easier to mess up if you forget to allow something both ways. But once you  get the logic, it's not too bad.
 
 
+From the left navigation pane, select Network ACLs. Navigate to the top right corner and select Create network ACL to create a Network Access Control Lists (NACLs)
+![alt text](<14 create network ACL.png>)
+
+On the Network ACLs option, from the list of ACLs select Public Subnet ACL
+From the tabs below, select Inbound rules and then choose Edit inbound rules
+On the Edit inbound rules, choose Add new rule and configure:
+Rule number: Enter 100
+Type: Choose All traffic from dropdown
+Choose Save changes
+Back on the  Network ACLs option, ensure that Public Subnet ACL is selected
+Choose Outbound rules and then choose *Edit outbound rules
+On the Edit outbound rules, choose Add new rule and configure:
+Rule number: Enter 100
+Type: Choose All traffic from dropdown
+Choose Save changes
+​ 
+Inbound After creating the NACL, it will should look like the following. This indicates there is only one rule number, and is 100, that states that all traffic, all protocols, all port ranges, from any source (0.0.0.0/0) are allowed to enter (inbound) the subnet. The asterisk * indicates that anything else that does not match this rule is denied.
+
+![alt text](<15 inbound rules.png>)
+
+Figure: Default inbound rule configuration for NACL. This will allow all traffic from anywhere and deny anything else that does not match this rule at the subnet level.
+
+Outbound What do you think this rule says?
+
+![alt text](<16 Outbound rules.png>)
+
+Figure: Default outbound rule configuration for NACL. This will allow all traffic from anywhere and deny anything else that does not match this rule at the subnet level.
 
 
+## Creating a Security Group
 
+What’s a security group again?
+Think of a security group like a personal bodyguard for your EC2 instance. It decides what kind of traffic can come in and what can go out of your server.
+Unlike NACLs, security groups don’t do blocking. They’re nice — they only allow stuff. If something isn’t on the allowed list, it’s just silently dropped (ignored). Also, they’re stateful, which means if something comes in, the return traffic is automatically allowed out — you don’t need to write rules for both directions like with NACLs.
+By default, everything is blocked, until you tell it what to allow. You must attach it to an EC2 instance — otherwise, it does nothing.
+Here’s what you can configure in a security group:
+Inbound Source: Who's allowed to connect to you? Could be a specific IP, or "everyone" (0.0.0.0/0), or maybe another AWS service.
+Outbound Destination: Where your server is allowed to send stuff — usually also 0.0.0.0/0 if you want it to reach the internet.
+Protocol: The type of traffic — like TCP or UDP (or all).
+Port Range: Which doors (ports) are open. Like 22 for SSH, 80 for HTTP, etc.
+Description: Just notes for you — to remember what a rule does.
 
-6. **Created a Network ACL** allowing all traffic (rule #100)
-7. **Created a Security Group** allowing SSH, HTTP, HTTPS
-8. **Launched an EC2 instance** in the public subnet with public IP
-9. **SSH’d into the instance** using PEM key
-10. **Ran `ping google.com`** – successful internet access confirmed
+From the left navigation pane, select Security Groups. Navigate to the top right corner and select Create security group to create a security group.
+
+![alt text](<Create security group.png>)
+
+The completed security group is shown below. This indicates that for Inbound rules you are allowing SSH, HTTP, and HTTPS types of traffic, each of which has its own protocols and port range. The source from which this traffic reaches your instance can be originating from anywhere. For Outbound rules, you are allowing all traffic from outside your instance.
+
+![alt text](<18 inbound and outbound.png>)
+
+You now have a functional VPC. The next task is to launch an EC2 instance to ensure that everything works.
+
+# Task 2: Launch EC2 instance and SSH into instance
+We will be launching an EC2 instance within your Public subnet and test connectivity by running the command ping. This will validate that your infrastructure is correct, such as security groups and network ACLs, to ensure that they are not blocking any traffic from your instance to the internet and vice versa. This will validate that you have a route to the IGW via the route table and that the IGW is attached.
+
+On the AWS Management Console, in the Search bar, enter and choose EC2 to go to the EC2 Management Console.
+In the left navigation pane, choose Instances.
+Choose Launch instances and configure the following options:
+In the Name and tags section, leave the Name blank.
+In the Application and OS Images (Amazon Machine Image) section, configure the following options:
+Quick Start: Choose Amazon Linux.
+Amazon Machine Image (AMI): Choose Amazon Linux 2023 AMI.
+In the Instance type section, choose t3.micro.
+In the Key pair (login) section, choose vockey.
+In the Network settings section, choose Edit and configure the following options:
+VPC - required: Choose Test VPC.
+Subnet: Choose Public Subnet.
+Auto-assign public IP: Choose Enable.
+Firewall (security groups): Choose Select existing security group.
+Choose public security group.
+Choose Launch instance.
+
+![alt text](<19 instances launched.png>)
+
+## Use SSH to connect to an Amazon Linux EC2 instance
+By Downloading PEM  file and saving it as the labsuser.pem 
+Use it to connect to your instance from the CMD
+
+# Task 3: Use ping to test internet connectivity
+
+Ran `ping google.com`– successful internet access confirmed
+
+![alt text](<21 ping.png>)
+
+ The above results are saying you have replies from google.com and have 0% packet loss.
+
+If you are getting replies back, that means that you have connectivity.
+
+It means:
+- Subnet is public 
+- Route table is routing internet traffic 
+- IGW is connected 
+- Security group + NACL aren’t blocking anything
 
 ---
 
-
----
-
-## 💡 What I Learned
+## What I Learned
 
 - How to troubleshoot and enable internet access in a custom VPC  
 - Importance of properly associating route tables and IGWs  
@@ -161,6 +257,8 @@ Note: Every route table needs to be associated to a subnet. You are now associat
 - That public IP + IGW + correct route = connectivity
 
 ---
+
+## Explanation of Concept
 
 - A Virtual Private Cloud (VPC) is like a data center but in the cloud. Its logically isolated from other virtual networks from which you can spin up and launch your AWS resources within minutes.
 - Private Internet Protocol (IP) addresses are how resources within the VPC communicate with each other. An instance needs a public IP address for it to communicate outside the VPC. The VPC will need networking resources such as an Internet Gateway (IGW) and a route table in order for the instance to reach the internet.
@@ -171,8 +269,7 @@ Note: Every route table needs to be associated to a subnet. You are now associat
 
 ---
 
-
-## 🔗 References
+## References
 
 - [AWS VPC Docs](https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html)  
 - [EC2 User Guide](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html)  
@@ -180,8 +277,10 @@ Note: Every route table needs to be associated to a subnet. You are now associat
 
 ---
 
-## 👤 Author
+
+## Author
 
 Kelvin Mwangi  
 GitHub: [@MwangiKelvin1](https://github.com/MwangiKelvin1)  
-LinkedIn: [linkedin.com/in/mwangikabuchu](https://linkedin.com/in/mwangikabuchu)
+LinkedIn: [linkedin.com/in/mwangikabuchu](https://linkedin.com/in/mwangi-gitimu)
+
