@@ -154,7 +154,8 @@ Honestly, they’re a bit more strict than security groups, and easier to mess u
 
 
 From the left navigation pane, select Network ACLs. Navigate to the top right corner and select Create network ACL to create a Network Access Control Lists (NACLs)
-![alt text](<14 create network ACL.png>)
+
+![alt text](<Screenshots/14 create network ACL.png>)
 
 On the Network ACLs option, from the list of ACLs select Public Subnet ACL
 From the tabs below, select Inbound rules and then choose Edit inbound rules
@@ -171,13 +172,13 @@ Choose Save changes
 ​ 
 Inbound After creating the NACL, it will should look like the following. This indicates there is only one rule number, and is 100, that states that all traffic, all protocols, all port ranges, from any source (0.0.0.0/0) are allowed to enter (inbound) the subnet. The asterisk * indicates that anything else that does not match this rule is denied.
 
-![alt text](<15 inbound rules.png>)
+![alt text](<Screenshots/15 inbound rules.png>)
 
 Figure: Default inbound rule configuration for NACL. This will allow all traffic from anywhere and deny anything else that does not match this rule at the subnet level.
 
 Outbound What do you think this rule says?
 
-![alt text](<16 Outbound rules.png>)
+![alt text](<Screenshots/16 Outbound rules.png>)
 
 Figure: Default outbound rule configuration for NACL. This will allow all traffic from anywhere and deny anything else that does not match this rule at the subnet level.
 
@@ -197,11 +198,11 @@ Description: Just notes for you — to remember what a rule does.
 
 From the left navigation pane, select Security Groups. Navigate to the top right corner and select Create security group to create a security group.
 
-![alt text](<Create security group.png>)
+![alt text](<Screenshots/Create security group.png>)
 
 The completed security group is shown below. This indicates that for Inbound rules you are allowing SSH, HTTP, and HTTPS types of traffic, each of which has its own protocols and port range. The source from which this traffic reaches your instance can be originating from anywhere. For Outbound rules, you are allowing all traffic from outside your instance.
 
-![alt text](<18 inbound and outbound.png>)
+![alt text](<Screenshots/18 inbound and outbound.png>)
 
 You now have a functional VPC. The next task is to launch an EC2 instance to ensure that everything works.
 
@@ -225,17 +226,19 @@ Firewall (security groups): Choose Select existing security group.
 Choose public security group.
 Choose Launch instance.
 
-![alt text](<19 instances launched.png>)
+![alt text](<Screenshots/19 instances launched.png>)
 
 ## Use SSH to connect to an Amazon Linux EC2 instance
 By Downloading PEM  file and saving it as the labsuser.pem 
 Use it to connect to your instance from the CMD
 
+![alt text](<Screenshots/20 connecting to terminal.png>)
+
 # Task 3: Use ping to test internet connectivity
 
 Ran `ping google.com`– successful internet access confirmed
 
-![alt text](<21 ping.png>)
+![alt text](<Screenshots/21 ping.png>)
 
  The above results are saying you have replies from google.com and have 0% packet loss.
 
